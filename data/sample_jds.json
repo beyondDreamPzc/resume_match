@@ -1,0 +1,27 @@
+[
+  {
+    "id": "java",
+    "title": "Java 后端开发工程师",
+    "jd": "招聘 Java 后端开发工程师：负责业务系统后端设计与开发。要求熟练掌握 Java、Spring Boot、MyBatis、MySQL，了解微服务架构和 Redis，有 2 年以上后端开发经验，本科及以上学历，计算机相关专业优先。"
+  },
+  {
+    "id": "ops",
+    "title": "Linux 运维工程师",
+    "jd": "招聘 Linux 运维工程师：负责服务器部署与日常运维。要求熟悉 Linux、Docker、Kubernetes、Shell 脚本，掌握 Ansible 等自动化运维工具，有 3 年以上运维经验，本科及以上学历。"
+  },
+  {
+    "id": "test",
+    "title": "软件测试工程师",
+    "jd": "招聘软件测试工程师：负责功能测试与自动化测试。要求熟悉测试流程与用例设计，掌握 Python/Java 至少一种语言，了解 Selenium、JMeter 等测试工具，有接口测试经验者优先，大专及以上学历。"
+  },
+  {
+    "id": "frontend",
+    "title": "前端开发工程师",
+    "jd": "招聘前端开发工程师：负责 Web 前端页面开发。要求熟练掌握 HTML、CSS、JavaScript，熟悉 Vue 或 React 框架，了解 Webpack 等构建工具，有 1 年以上前端开发经验，本科及以上学历。"
+  },
+  {
+    "id": "python",
+    "title": "Python 开发工程师",
+    "jd": "招聘 Python 开发工程师：负责数据处理与后端服务开发。要求熟练掌握 Python、Django 或 Flask，熟悉 MySQL、Redis，有数据处理或爬虫经验者优先，本科及以上学历。"
+  }
+]

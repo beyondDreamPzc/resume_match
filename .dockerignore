@@ -1,0 +1,14 @@
+# Git
+.git
+__pycache__/
+*.pyc
+
+# 缓存（体积大 / 可再生）
+data/.embed_cache/
+data/.parse_cache/
+data/txt_output/
+
+# 本地敏感信息与构建产物
+.env
+*.log
+.DS_Store

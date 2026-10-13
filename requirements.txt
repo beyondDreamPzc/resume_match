@@ -1,0 +1,6 @@
+pymilvus>=2.3
+fastapi>=0.110
+uvicorn>=0.27
+requests>=2.31
+openai>=1.0
+python-dotenv>=1.0

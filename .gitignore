@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 缓存（可再生产物，不入库）
+data/.embed_cache/
+data/.parse_cache/
+
+# 简历原始文本（从外部数据目录复制而来，不入库；README 说明获取方式）
+data/txt_output/
+
+# 敏感信息
+.env
+
+# 系统/编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log

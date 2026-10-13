@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>简历匹配筛选服务</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --card: #ffffff;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #f59e0b;
+      --green: #16a34a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Microsoft YaHei", "PingFang SC", -apple-system, sans-serif;
+           background: var(--bg); color: var(--text); min-height: 100vh; }
+    header { background: var(--card); border-bottom: 1px solid var(--border);
+             padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
+    header h1 { font-size: 18px; font-weight: 600; }
+    header .badge { background: #eef2ff; color: var(--primary); font-size: 12px;
+                    padding: 3px 10px; border-radius: 999px; }
+    .container { max-width: 900px; margin: 0 auto; padding: 24px; }
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+             padding: 20px; margin-bottom: 20px; }
+    .panel h2 { font-size: 15px; margin-bottom: 12px; }
+    textarea { width: 100%; min-height: 110px; padding: 12px 14px; border: 1px solid var(--border);
+               border-radius: 8px; font-size: 14px; line-height: 1.7; outline: none; resize: vertical;
+               font-family: inherit; }
+    textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+    .controls { display: flex; align-items: center; gap: 14px; margin-top: 14px; flex-wrap: wrap; }
+    .controls label { font-size: 13px; color: var(--muted); }
+    select, input[type=number] { padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px;
+                                 font-size: 14px; outline: none; }
+    .chk { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--muted); }
+    button.primary { background: var(--primary); color: #fff; border: none; border-radius: 8px;
+                     padding: 10px 26px; font-size: 15px; font-weight: 500; cursor: pointer; }
+    button.primary:hover { background: var(--primary-dark); }
+    button.primary:disabled { background: #93c5fd; cursor: not-allowed; }
+    .status { font-size: 13px; color: var(--muted); margin-top: 10px; }
+    .result-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+                   padding: 16px; margin-bottom: 14px; position: relative; }
+    .rank { position: absolute; top: 14px; left: 14px; width: 34px; height: 34px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
+    .rank.r1 { background: #fbbf24; color: #fff; }
+    .rank.r2 { background: #9ca3af; color: #fff; }
+    .rank.r3 { background: #d97706; color: #fff; }
+    .rank.rn { background: #e5e7eb; color: var(--muted); }
+    .rc-head { margin-left: 48px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+    .rc-name { font-size: 17px; font-weight: 600; }
+    .rc-score { font-size: 26px; font-weight: 700; color: var(--primary); }
+    .rc-sim { font-size: 12px; color: var(--muted); }
+    .rc-tags { margin-left: 48px; margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { font-size: 12px; padding: 2px 9px; border-radius: 999px; background: #eef2ff; color: var(--primary); }
+    .tag.skill { background: #f0fdf4; color: var(--green); }
+    .tag.info { background: #f5f3ff; color: #7c3aed; }
+    .rc-reason { margin-left: 48px; margin-top: 10px; font-size: 14px; line-height: 1.7; color: #374151; }
+    details.raw { margin-left: 48px; margin-top: 8px; }
+    details.raw summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+    details.raw pre { background: #f9fafb; border: 1px solid var(--border); border-radius: 8px;
+                     padding: 12px; font-size: 12px; line-height: 1.6; white-space: pre-wrap;
+                     max-height: 240px; overflow: auto; margin-top: 6px; }
+    .empty { text-align: center; color: var(--muted); padding: 40px 0; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>简历匹配筛选服务</h1>
+    <span class="badge">RAG · Milvus + bge-m3 + DeepSeek</span>
+  </header>
+
+  <div class="container">
+    <div class="panel">
+      <h2>岗位需求（JD）</h2>
+      <textarea id="jd" placeholder="粘贴岗位描述，或从下方示例中选择……"></textarea>
+      <div class="controls">
+        <label>示例 JD：</label>
+        <select id="exampleSel" onchange="loadExample()">
+          <option value="">— 选择示例 —</option>
+        </select>
+        <label>召回数：</label>
+        <select id="topN">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="20">20</option>
+          <option value="44">44（全量）</option>
+        </select>
+        <span class="chk"><input type="checkbox" id="useLlm" checked> 大模型打分</span>
+        <button class="primary" id="matchBtn" onclick="doMatch()">开始匹配</button>
+      </div>
+      <div class="status" id="status"></div>
+    </div>
+
+    <div id="results"></div>
+  </div>
+
+  <script>
+    const jdBox = document.getElementById('jd');
+    const sel = document.getElementById('exampleSel');
+    const results = document.getElementById('results');
+    const statusEl = document.getElementById('status');
+    const matchBtn = document.getElementById('matchBtn');
+
+    async function loadExamples() {
+      const resp = await fetch('/api/examples');
+      const list = await resp.json();
+      list.forEach(ex => {
+        const opt = document.createElement('option');
+        opt.value = JSON.stringify(ex.jd);
+        opt.textContent = ex.title;
+        sel.appendChild(opt);
+      });
+    }
+    loadExamples();
+
+    function loadExample() {
+      const v = sel.value;
+      if (v) jdBox.value = JSON.parse(v);
+    }
+
+    function escapeHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    async function doMatch() {
+      const jd = jdBox.value.trim();
+      if (!jd) { statusEl.textContent = '请先输入或选择岗位 JD'; return; }
+      matchBtn.disabled = true;
+      statusEl.textContent = '正在召回并打分…';
+      results.innerHTML = '';
+
+      const topN = parseInt(document.getElementById('topN').value);
+      const useLlm = document.getElementById('useLlm').checked;
+
+      try {
+        const resp = await fetch('/api/match', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jd, top_n: topN, use_llm: useLlm }),
+        });
+        const data = await resp.json();
+        if (data.error) {
+          statusEl.textContent = data.error;
+          return;
+        }
+        statusEl.textContent = `召回 ${data.recalled} / 共 ${data.total} 份简历 · 耗时 ${data.elapsed}s`;
+        render(data.results);
+      } catch (e) {
+        statusEl.textContent = '请求失败：' + e.message;
+      } finally {
+        matchBtn.disabled = false;
+      }
+    }
+
+    function render(list) {
+      if (!list || list.length === 0) {
+        results.innerHTML = '<div class="empty">没有匹配结果</div>';
+        return;
+      }
+      results.innerHTML = list.map(r => {
+        const rankCls = r.rank === 1 ? 'r1' : r.rank === 2 ? 'r2' : r.rank === 3 ? 'r3' : 'rn';
+        const tags = [];
+        if (r.intent) tags.push(`<span class="tag info">意向：${escapeHtml(r.intent)}</span>`);
+        if (r.degree) tags.push(`<span class="tag info">${escapeHtml(r.degree)}</span>`);
+        if (r.work_years) tags.push(`<span class="tag info">${escapeHtml(r.work_years)}</span>`);
+        if (r.city) tags.push(`<span class="tag info">${escapeHtml(r.city)}</span>`);
+        (r.matched_skills || []).slice(0, 6).forEach(s =>
+          tags.push(`<span class="tag skill">${escapeHtml(s)}</span>`));
+        return `
+          <div class="result-card">
+            <div class="rank ${rankCls}">${r.rank}</div>
+            <div class="rc-head">
+              <span class="rc-name">${escapeHtml(r.name || '未知名')}</span>
+              <span class="rc-score">${r.score}</span>
+              <span class="rc-sim">向量相似度 ${r.vec_similarity}</span>
+            </div>
+            <div class="rc-tags">${tags.join('')}</div>
+            <div class="rc-reason">${escapeHtml(r.reason || '')}</div>
+            <details class="raw">
+              <summary>查看简历原文</summary>
+              <pre>${escapeHtml(r.raw_text || '')}</pre>
+            </details>
+          </div>`;
+      }).join('');
+    }
+  </script>
+</body>
+</html>

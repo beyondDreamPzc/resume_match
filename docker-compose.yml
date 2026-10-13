@@ -1,0 +1,15 @@
+services:
+  app:
+    build: .
+    container_name: resume-match
+    ports:
+      - "8001:8000"
+    environment:
+      - MILVUS_HOST=host.docker.internal
+      - MILVUS_PORT=19530
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - EMBED_MODEL=bge-m3:latest
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
